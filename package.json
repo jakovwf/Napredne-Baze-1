@@ -12,8 +12,10 @@
   },
   "scripts": {
     "build:shared": "npm run build -w @pixelboard/shared",
-    "build": "npm run build:shared",
+    "build": "npm run build:shared && npm run build -w backend",
     "lint": "npm run lint --workspaces --if-present",
-    "test": "npm run build:shared && npm test --workspaces --if-present"
+    "test": "npm run build:shared && npm test --workspaces --if-present",
+    "start:api": "npm run build:shared && npm run start:api -w backend",
+    "start:worker": "npm run build:shared && npm run start:worker -w backend"
   }
 }
