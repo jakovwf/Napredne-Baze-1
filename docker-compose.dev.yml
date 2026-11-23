@@ -1,0 +1,9 @@
+# razvoj: izlaže baze samo na loopback, za backend i testove koji rade van dockera
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d redis cassandra cassandra-init
+services:
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"
+  cassandra:
+    ports:
+      - "127.0.0.1:9042:9042"

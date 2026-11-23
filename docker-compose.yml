@@ -1,0 +1,125 @@
+# pokretanje: cp .env.example .env && docker compose up --build  →  http://localhost:8080
+
+x-app-env: &app-env
+  PORT: ${PORT:-3000}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+  CASSANDRA_CONTACT_POINTS: ${CASSANDRA_CONTACT_POINTS:-cassandra}
+  CASSANDRA_DC: ${CASSANDRA_DC:-datacenter1}
+  CASSANDRA_KEYSPACE: ${CASSANDRA_KEYSPACE:-pixelboard}
+  CANVAS_WIDTH: ${CANVAS_WIDTH:-300}
+  CANVAS_HEIGHT: ${CANVAS_HEIGHT:-300}
+  COOLDOWN_MS: ${COOLDOWN_MS:-5000}
+  SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-7}
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  PERSISTER_BATCH_SIZE: ${PERSISTER_BATCH_SIZE:-500}
+  PERSISTER_BLOCK_MS: ${PERSISTER_BLOCK_MS:-2000}
+  PERSISTER_CLAIM_IDLE_MS: ${PERSISTER_CLAIM_IDLE_MS:-30000}
+  SNAPSHOT_MIN_MOVES: ${SNAPSHOT_MIN_MOVES:-10000}
+  SNAPSHOT_INTERVAL_MS: ${SNAPSHOT_INTERVAL_MS:-300000}
+  SNAPSHOT_KEEP: ${SNAPSHOT_KEEP:-12}
+  ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+  ADMIN_PASSWORD: ${ADMIN_PASSWORD:-change-me}
+
+services:
+  cassandra:
+    image: cassandra:4.1
+    container_name: nbp-cassandra
+    restart: unless-stopped
+    environment:
+      - CASSANDRA_CLUSTER_NAME=nbp-cluster
+      - CASSANDRA_DC=datacenter1
+      # razvojne vrednosti, na serveru povećati preko .env (obe se postavljaju zajedno)
+      - MAX_HEAP_SIZE=${CASSANDRA_MAX_HEAP_SIZE:-1G}
+      - HEAP_NEWSIZE=${CASSANDRA_HEAP_NEWSIZE:-256M}
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'describe keyspaces' || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 15
+      start_period: 90s
+
+  # jednokratno primenjuje schema.cql kad je cassandra healthy, pa izlazi
+  cassandra-init:
+    image: cassandra:4.1
+    container_name: nbp-cassandra-init
+    restart: "no"
+    command: ["cqlsh", "cassandra", "-f", "/schema.cql"]
+    volumes:
+      - ./infra/cassandra/schema.cql:/schema.cql:ro
+    depends_on:
+      cassandra:
+        condition: service_healthy
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: nbp-redis
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./infra/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: nbp-api
+    restart: unless-stopped
+    environment:
+      <<: *app-env
+      APP_ROLE: api
+      NODE_ENV: ${NODE_ENV:-development}
+    depends_on:
+      cassandra:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      cassandra-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: nbp-worker
+    restart: unless-stopped
+    environment:
+      <<: *app-env
+      APP_ROLE: worker
+      NODE_ENV: ${NODE_ENV:-development}
+    depends_on:
+      cassandra:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      cassandra-init:
+        condition: service_completed_successfully
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: nbp-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  cassandra_data:
+  redis_data:
