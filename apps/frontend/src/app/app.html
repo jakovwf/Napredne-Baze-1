@@ -1,1 +1,41 @@
-<router-outlet />
+<div class="app">
+  <mat-toolbar class="toolbar">
+    <a class="brand" routerLink="/" aria-label="PixelBoard, početna">PixelBoard</a>
+
+    <span class="spacer"></span>
+
+    <span
+      class="conn"
+      [class.ok]="socket.connected()"
+      role="status"
+      [attr.title]="socket.connected() ? 'Povezano' : 'Ponovno povezivanje'"
+    >
+      <span class="dot"></span>
+      <span class="conn-text">
+        {{
+          socket.connected()
+            ? 'Povezano'
+            : socket.everConnected()
+              ? 'Ponovno povezivanje…'
+              : 'Povezivanje…'
+        }}
+      </span>
+    </span>
+
+    @if (auth.status() === 'authenticated') {
+      <button mat-button type="button" [matMenuTriggerFor]="userMenu" class="user-btn">
+        {{ auth.user()?.username }}
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item type="button" (click)="logout()">Odjava</button>
+      </mat-menu>
+    } @else if (auth.status() === 'guest') {
+      <a mat-button routerLink="/login">Prijava</a>
+      <a mat-flat-button routerLink="/register" class="register-btn">Registracija</a>
+    }
+  </mat-toolbar>
+
+  <main class="main">
+    <router-outlet />
+  </main>
+</div>

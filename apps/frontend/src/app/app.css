@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  height: 100dvh;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  flex: none;
+  gap: 4px;
+  padding: 0 8px 0 16px;
+  background: #1b1c20;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand {
+  color: inherit;
+  text-decoration: none;
+  font: var(--mat-sys-title-large);
+  letter-spacing: 0.5px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.conn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffb74d;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.conn.ok .dot {
+  background: #4caf50;
+  animation: none;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* mobilni: samo tačka za status veze */
+@media (max-width: 560px) {
+  .conn-text {
+    display: none;
+  }
+
+  .toolbar {
+    padding: 0 4px 0 12px;
+  }
+
+  .brand {
+    font-size: 18px;
+  }
+}

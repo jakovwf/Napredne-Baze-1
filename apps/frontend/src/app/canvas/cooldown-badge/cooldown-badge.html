@@ -1,0 +1,10 @@
+@if (cooldown.active()) {
+  <div class="badge" role="timer" aria-live="off">
+    <span class="label"
+      >Sledeći piksel za <strong>{{ seconds() }} s</strong></span
+    >
+    <div class="bar"><div class="fill" [style.width.%]="percent()"></div></div>
+  </div>
+} @else {
+  <div class="badge ready">Spreman za bojenje</div>
+}

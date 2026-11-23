@@ -1,0 +1,47 @@
+<div class="page">
+  <div class="stage-area">
+    <app-canvas-view class="view" (pixelClick)="onPixelClick($event)" (hover)="onHover($event)" />
+
+    <!-- banneri statusa -->
+    <div class="banners">
+      @if (recovering()) {
+        <div class="banner warn" role="status">Platno se vraća, sačekaj trenutak…</div>
+      }
+      @if (canvas.syncState() === 'loading' || canvas.syncState() === 'error') {
+        <div class="banner info" role="status">
+          {{ canvas.syncError() ?? 'Učitavam platno…' }}
+          <mat-progress-bar mode="indeterminate" />
+        </div>
+      }
+    </div>
+
+    <!-- koordinate i boja ispod kursora -->
+    @if (hover(); as h) {
+      <div class="hover-chip" aria-live="off">
+        <span class="chip-swatch" [style.background]="hoverHex()"></span>
+        ({{ h.x }}, {{ h.y }})
+      </div>
+    }
+  </div>
+
+  <!-- dok -->
+  <div class="dock">
+    @if (auth.status() === 'authenticated') {
+      <div class="dock-row">
+        <app-cooldown-badge />
+      </div>
+      <app-palette
+        [colors]="palette()"
+        [selected]="selectedColor()"
+        [disabled]="recovering()"
+        (colorSelect)="selectedColor.set($event)"
+      />
+    } @else {
+      <div class="dock-row guest">
+        <span>Prijavi se da bojiš</span>
+        <a mat-flat-button routerLink="/login">Prijava</a>
+        <a mat-stroked-button routerLink="/register">Registracija</a>
+      </div>
+    }
+  </div>
+</div>

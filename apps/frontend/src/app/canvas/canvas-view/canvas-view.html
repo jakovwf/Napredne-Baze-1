@@ -1,0 +1,18 @@
+<div
+  #viewport
+  class="viewport"
+  [class.ready]="canvas.syncState() === 'ready'"
+  role="application"
+  aria-label="Platno. Prevlačenjem pomeraš, točkićem zumiraš."
+>
+  <div #stage class="stage">
+    <canvas #canvasEl class="canvas"></canvas>
+    <div #cursorEl class="cursor" hidden></div>
+  </div>
+
+  <div class="zoom-controls" role="group" aria-label="Zumiranje">
+    <button type="button" matMiniFab (click)="zoomBy(1.5)" aria-label="Zumiraj">+</button>
+    <button type="button" matMiniFab (click)="zoomBy(1 / 1.5)" aria-label="Odzumiraj">−</button>
+    <button type="button" matMiniFab (click)="fit()" aria-label="Uklopi u ekran">⤢</button>
+  </div>
+</div>

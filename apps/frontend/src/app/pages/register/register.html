@@ -1,0 +1,45 @@
+<section class="auth-page">
+  <form class="card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <h1>Registracija</h1>
+
+    @if (auth.loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    @if (auth.error()) {
+      <p class="error-banner" role="alert">{{ auth.error() }}</p>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>Korisničko ime</mat-label>
+      <input matInput formControlName="username" autocomplete="username" />
+      <mat-hint>{{ usernameMin }}–{{ usernameMax }} karaktera: slova, cifre i _</mat-hint>
+      @if (form.controls.username.hasError('required')) {
+        <mat-error>Unesi korisničko ime.</mat-error>
+      } @else if (form.controls.username.hasError('minlength')) {
+        <mat-error>Najmanje {{ usernameMin }} karaktera.</mat-error>
+      } @else if (form.controls.username.hasError('maxlength')) {
+        <mat-error>Najviše {{ usernameMax }} karaktera.</mat-error>
+      } @else if (form.controls.username.hasError('pattern')) {
+        <mat-error>Dozvoljena su samo slova (bez dijakritika), cifre i _.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Lozinka</mat-label>
+      <input matInput type="password" formControlName="password" autocomplete="new-password" />
+      <mat-hint>{{ passwordMin }}–{{ passwordMax }} karaktera</mat-hint>
+      @if (form.controls.password.hasError('required')) {
+        <mat-error>Unesi lozinku.</mat-error>
+      } @else if (form.controls.password.hasError('minlength')) {
+        <mat-error>Najmanje {{ passwordMin }} karaktera.</mat-error>
+      } @else if (form.controls.password.hasError('maxlength')) {
+        <mat-error>Najviše {{ passwordMax }} karaktera.</mat-error>
+      }
+    </mat-form-field>
+
+    <button mat-flat-button type="submit" [disabled]="auth.loading()">Registruj se</button>
+
+    <p class="alt">Već imaš nalog? <a routerLink="/login">Prijavi se</a></p>
+  </form>
+</section>

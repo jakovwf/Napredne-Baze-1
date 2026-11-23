@@ -1,0 +1,97 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* platno zauzima prostor iznad doka, pa se "uklopi u ekran" računa po stvarnoj visini */
+.stage-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.view {
+  position: absolute;
+  inset: 0;
+}
+
+.banners {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(92%, 420px);
+  pointer-events: none;
+}
+
+.banner {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(30, 32, 38, 0.94);
+  text-align: center;
+  font-size: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.banner.warn {
+  border: 1px solid #ffb74d;
+  color: #ffd180;
+}
+
+.banner.info {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hover-chip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(30, 32, 38, 0.92);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.chip-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.dock {
+  flex: none;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  background: #1b1c20;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dock-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.dock-row.guest {
+  padding: 4px 0;
+}

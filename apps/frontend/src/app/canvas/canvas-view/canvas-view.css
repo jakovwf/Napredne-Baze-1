@@ -1,0 +1,64 @@
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #1a1b1f;
+  /* browser ne preuzima dodir (skrol i zoom stranice), pan i pinch radimo mi */
+  touch-action: none;
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.viewport.dragging {
+  cursor: grabbing;
+}
+
+.stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  opacity: 0;
+}
+
+.viewport.ready .stage {
+  opacity: 1;
+}
+
+.canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+.cursor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  /* debljina se skalira zajedno sa platnom */
+  outline: 0.14px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 0.28px rgba(0, 0, 0, 0.6);
+}
+
+.zoom-controls {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
