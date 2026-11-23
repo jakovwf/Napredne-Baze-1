@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
@@ -11,6 +12,7 @@ import { CanvasView, PixelPos } from '../../canvas/canvas-view/canvas-view';
 import { CooldownBadge } from '../../canvas/cooldown-badge/cooldown-badge';
 import { CooldownStore } from '../../canvas/cooldown.store';
 import { Palette } from '../../canvas/palette/palette';
+import { PixelHistoryDialog } from '../../canvas/pixel-history-dialog/pixel-history-dialog';
 import { placeErrorMessage } from '../../canvas/place-errors';
 
 interface HoverInfo {
@@ -32,11 +34,14 @@ export class CanvasPage {
   protected readonly canvas = inject(CanvasService);
   protected readonly socket = inject(SocketService);
   protected readonly cooldown = inject(CooldownStore);
+  private readonly dialog = inject(MatDialog);
   private readonly snack = inject(MatSnackBar);
 
   protected readonly palette = computed(() => this.canvas.config()?.palette ?? PALETTE);
   protected readonly selectedColor = signal(5);
   protected readonly hover = signal<HoverInfo | null>(null);
+  /** u info modu klik otvara istoriju piksela umesto bojenja */
+  protected readonly infoMode = signal(false);
 
   /** true dok traje oporavak platna */
   protected readonly recovering = computed(() => this.socket.status() === 'recovering');
@@ -51,6 +56,8 @@ export class CanvasPage {
   }
 
   protected async onPixelClick(pos: PixelPos): Promise<void> {
+    if (this.infoMode()) return this.openInfo(pos);
+
     if (this.auth.status() !== 'authenticated') {
       this.notify(placeErrorMessage('UNAUTHORIZED'));
       return;
@@ -74,6 +81,18 @@ export class CanvasPage {
     if (res.error === 'COOLDOWN' && res.retryInMs) this.cooldown.startFor(res.retryInMs);
     if (res.error === 'UNAUTHORIZED') this.auth.sessionExpired();
     this.notify(placeErrorMessage(res.error, res.retryInMs));
+  }
+
+  protected openInfo(pos: PixelPos): void {
+    this.dialog.open(PixelHistoryDialog, {
+      data: { x: pos.x, y: pos.y },
+      maxWidth: '95vw',
+      autoFocus: false,
+    });
+  }
+
+  protected toggleInfoMode(): void {
+    this.infoMode.update((v) => !v);
   }
 
   private notify(message: string): void {

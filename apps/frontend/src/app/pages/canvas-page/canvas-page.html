@@ -1,6 +1,11 @@
 <div class="page">
   <div class="stage-area">
-    <app-canvas-view class="view" (pixelClick)="onPixelClick($event)" (hover)="onHover($event)" />
+    <app-canvas-view
+      class="view"
+      (pixelClick)="onPixelClick($event)"
+      (pixelInfo)="openInfo($event)"
+      (hover)="onHover($event)"
+    />
 
     <!-- banneri statusa -->
     <div class="banners">
@@ -29,6 +34,16 @@
     @if (auth.status() === 'authenticated') {
       <div class="dock-row">
         <app-cooldown-badge />
+        <button
+          mat-stroked-button
+          type="button"
+          class="info-btn"
+          [class.active]="infoMode()"
+          [attr.aria-pressed]="infoMode()"
+          (click)="toggleInfoMode()"
+        >
+          Informacije
+        </button>
       </div>
       <app-palette
         [colors]="palette()"
@@ -41,6 +56,16 @@
         <span>Prijavi se da bojiš</span>
         <a mat-flat-button routerLink="/login">Prijava</a>
         <a mat-stroked-button routerLink="/register">Registracija</a>
+        <button
+          mat-stroked-button
+          type="button"
+          class="info-btn"
+          [class.active]="infoMode()"
+          [attr.aria-pressed]="infoMode()"
+          (click)="toggleInfoMode()"
+        >
+          Informacije
+        </button>
       </div>
     }
   </div>

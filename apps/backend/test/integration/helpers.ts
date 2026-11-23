@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+import type { LuaScriptsService } from '../../src/redis/lua-scripts.service';
 import type { Redis } from 'ioredis';
 
 /** FLUSHDB samo nad test bazom, nikad nad db 0 gde je razvojno platno */
@@ -31,4 +33,28 @@ export async function seedCanvas(client: Redis): Promise<void> {
     })
     .set('canvas:status', 'ready')
     .exec();
+}
+
+/** potez admina (bez cooldown-a) kroz place_pixel.lua; vraća odgovor skripte */
+export function placeViaLua(
+  lua: LuaScriptsService,
+  x: number,
+  y: number,
+  color: number,
+): Promise<(string | number)[]> {
+  const uid = randomUUID();
+  return lua.run(
+    'place_pixel',
+    [
+      'canvas:main',
+      'canvas:status',
+      `cooldown:${uid}`,
+      'zones:active',
+      'stream:moves',
+      'canvas:version',
+      'config:canvas',
+      'canvas:updates',
+    ],
+    [uid, 'tester', x, y, color, Date.now(), 'admin'],
+  ) as Promise<(string | number)[]>;
 }

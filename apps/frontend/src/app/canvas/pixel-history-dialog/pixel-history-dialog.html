@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>Istorija piksela ({{ data.x }}, {{ data.y }})</h2>
+
+<mat-dialog-content>
+  @if (loaded() && items().length === 0) {
+    <p class="empty">Ovaj piksel još niko nije obojio.</p>
+  }
+
+  <ul class="list">
+    @for (item of items(); track $index) {
+      <li class="row">
+        <span
+          class="swatch"
+          [style.background]="hex(item.color)"
+          [attr.title]="hex(item.color)"
+        ></span>
+        <span class="user">{{ item.username }}</span>
+        <time class="when" [attr.datetime]="item.placedAt">
+          {{ item.placedAt | date: 'dd.MM.yyyy HH:mm:ss' }}
+        </time>
+      </li>
+    }
+  </ul>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <div class="spinner"><mat-spinner diameter="28" /></div>
+  } @else if (next()) {
+    <button mat-stroked-button type="button" (click)="loadMore()">Učitaj još</button>
+  } @else if (error()) {
+    <button mat-stroked-button type="button" (click)="loadMore()">Pokušaj ponovo</button>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Zatvori</button>
+</mat-dialog-actions>

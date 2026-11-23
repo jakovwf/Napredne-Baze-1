@@ -95,3 +95,7 @@
 .dock-row.guest {
   padding: 4px 0;
 }
+
+.info-btn.active {
+  background: rgba(0, 188, 212, 0.25);
+}
