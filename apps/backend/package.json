@@ -15,6 +15,7 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "test:integration": "jest --config ./test/jest-int.json --runInBand",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "lint:fix": "eslint \"{src,test}/**/*.ts\" --fix",
     "start:api": "cross-env APP_ROLE=api nest start --watch",
@@ -22,7 +23,6 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
-    "@nestjs/config": "^12.1.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@pixelboard/shared": "^0.0.1",
