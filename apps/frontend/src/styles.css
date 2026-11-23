@@ -1,0 +1,17 @@
+/* globalni stilovi; material tema je u material-theme.scss */
+html,
+body {
+  height: 100%;
+  overflow: hidden; /* fiksna visina; platno se pomera samo zoom/pan-om */
+  overscroll-behavior: none;
+}
+
+body {
+  font-family:
+    Roboto,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  background: #121316;
+}
