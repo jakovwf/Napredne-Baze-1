@@ -118,7 +118,6 @@ describe('lua skripte (integration)', () => {
 
       await sleep(100);
       expect(messages).toEqual(['1,3,2,5']);
-      sub.disconnect();
     });
 
     it('verzija raste za svaki uspešan potez', async () => {
