@@ -64,6 +64,40 @@ Integracioni testovi traže gore podignute baze i nisu deo `npm test`. Rade nad 
 npm run test:integration -w backend
 ```
 
+## Demo: pad Redisa
+
+Stanje platna živi u Redisu, a trajna kopija je u Cassandri (snapshot-ovi i istorija poteza). Posle gubitka Redisa `api` sam vraća platno, bez restarta.
+
+Stanje pre pada (SHA-256 i verzija platna):
+
+```powershell
+node tools/demo/canvas-hash.mjs http://localhost:8080
+```
+
+Običan restart Redisa (AOF vraća sve podatke, oporavak nije potreban, hash je isti):
+
+```powershell
+docker compose restart redis
+node tools/demo/canvas-hash.mjs http://localhost:8080
+```
+
+Gubitak podataka Redisa (briše se i volume), platno se vraća iz Cassandre:
+
+```powershell
+# sačekaj da worker upiše poteze u Cassandru (pending 0):
+docker compose exec redis redis-cli XINFO GROUPS stream:moves
+
+docker compose rm -sf redis
+$project = (docker compose config --format json | ConvertFrom-Json).name
+docker volume rm "${project}_redis_data"
+docker compose up -d redis
+
+docker compose logs -f api      # vidi se "platno spremno (... snapshot v... + ... poteza iz replay-a)"
+node tools/demo/canvas-hash.mjs http://localhost:8080   # čeka 503 dok oporavak traje, pa ispiše isti hash
+```
+
+Dok oporavak traje, `GET /api/canvas` vraća 503 sa `Retry-After`, potezi se odbijaju, a `GET /api/health` i dalje vraća 200 (u telu je `canvas: recovering`). Gubi se samo ono što još nije stiglo u Cassandru (po pravilu najviše sekunda poteza), kao i prolazno stanje Redisa: sesije (korisnici se ponovo prijavljuju) i cooldown-ovi.
+
 ## Produkcija
 
 U `.env` postavi `NODE_ENV=production` i obavezno promeni `ADMIN_PASSWORD`; u produkciji backend odbija prazan ili `change-me` `ADMIN_PASSWORD`. Na serveru sa HTTPS-om postavi `COOKIE_SECURE=true`.
