@@ -1,0 +1,19 @@
+{
+  "name": "pixelboard",
+  "version": "0.0.1",
+  "private": true,
+  "description": "PixelBoard — globalno piksel platno (Angular + NestJS + Redis + Cassandra)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build:shared": "npm run build -w @pixelboard/shared",
+    "build": "npm run build:shared",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run build:shared && npm test --workspaces --if-present"
+  }
+}
